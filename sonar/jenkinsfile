@@ -1,0 +1,37 @@
+pipeline{
+   
+    agent any
+    stages{
+        stage("test-sonar"){
+            steps{
+                script {
+                    withSonarQubeEnv("sonarQube") {
+                    sh "${scannerHome}/bin/sonar-scanner \
+                        -Dsonar.projectKey=mern-front \
+                        -Dsonar.sources=. \
+                        -Dsonar.host.url=http://localhost:9000 \
+                        -Dsonar.login=admin \
+                        -Dsonar.password=trythisagain96"
+                    } 
+                }
+            }
+        }
+        stage("test-sonar"){
+            steps{
+                script {
+                    withSonarQubeEnv("sonarQube") {
+                    sh "${scannerHome}/bin/sonar-scanner \
+                        -Dsonar.projectKey=mern-backen\
+                        -Dsonar.sources=. \
+                        -Dsonar.host.url=http://15.236.24.79:9000/ \
+                        -Dsonar.login=admin \
+                        -Dsonar.password=admin"
+                    } 
+                }
+            }
+        
+        
+        
+        
+    }
+}
