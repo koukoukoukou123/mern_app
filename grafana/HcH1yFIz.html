@@ -1,0 +1,884 @@
+
+
+<!doctype html>
+<html lang="en-US">
+
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <link rel="icon" type="image/png" href="https://www.metricfire.com/assets/images/favicon.png" />
+  <link rel="shortcut icon" type="image/x-icon" href="https://www.metricfire.com/assets/images/favicon.png" />
+
+  
+  <title>Graphite for Node.js Monitoring | MetricFire Blog</title>
+<meta name="referrer" content="no-referrer-when-downgrade">
+
+
+
+
+
+<meta name="author" content="MetricFire">
+<meta name="twitter:site" content="@Metricfire" />
+<meta name="twitter:creator" content="@Metricfire" />
+
+<meta name="twitter:card" content="summary_large_image" />
+<meta property="og:url" content="https://www.metricfire.com/blog/graphite-for-node-js-monitoring/">
+<meta property="og:type" content="article">
+<meta property="og:title" content="Graphite for Node.js Monitoring | MetricFire Blog">
+<meta name="twitter:title" content="Graphite for Node.js Monitoring | MetricFire Blog" />
+
+
+    <meta name="description" content="Node.js is a popular framework for creating microservices. Let's look at how to monitor Node.js applications using Graphite and StatsD.">
+    <meta property="og:description" content="Node.js is a popular framework for creating microservices. Let's look at how to monitor Node.js applications using Graphite and StatsD.">
+    <meta name="twitter:description" content="Node.js is a popular framework for creating microservices. Let's look at how to monitor Node.js applications using Graphite and StatsD.">
+
+
+
+    <meta property="og:image" content="https://cdn.buttercms.com/4ZtpOKHwRSWOJmorkn0d">
+    <meta name="twitter:image" content="https://cdn.buttercms.com/4ZtpOKHwRSWOJmorkn0d">
+
+
+
+    <!-- Google Tag Manager -->
+    <script>(function(w,d,s,l,i){w[l]=w[l]||[];w[l].push({'gtm.start':
+        new Date().getTime(),event:'gtm.js'});var f=d.getElementsByTagName(s)[0],
+        j=d.createElement(s),dl=l!='dataLayer'?'&l='+l:'';j.async=true;j.src=
+        'https://www.googletagmanager.com/gtm.js?id='+i+dl;f.parentNode.insertBefore(j,f);
+        })(window,document,'script','dataLayer','GTM-TZXFZRS');</script>
+    <!-- End Google Tag Manager -->
+    <!-- Segment -->
+    <script>
+      !function(){var analytics=window.analytics=window.analytics||[];if(!analytics.initialize)if(analytics.invoked)window.console&&console.error&&console.error("Segment snippet included twice.");else{analytics.invoked=!0;analytics.methods=["trackSubmit","trackClick","trackLink","trackForm","pageview","identify","reset","group","track","ready","alias","debug","page","once","off","on","addSourceMiddleware","addIntegrationMiddleware","setAnonymousId","addDestinationMiddleware"];analytics.factory=function(e){return function(){var t=Array.prototype.slice.call(arguments);t.unshift(e);analytics.push(t);return analytics}};for(var e=0;e<analytics.methods.length;e++){var key=analytics.methods[e];analytics[key]=analytics.factory(key)}analytics.load=function(key,e){var t=document.createElement("script");t.type="text/javascript";t.async=!0;t.src="https://cdn.segment.com/analytics.js/v1/" + key + "/analytics.min.js";var n=document.getElementsByTagName("script")[0];n.parentNode.insertBefore(t,n);analytics._loadOptions=e};analytics.SNIPPET_VERSION="4.13.1";
+      analytics.load("ItvW0mYpnhzHZy4LXO7lsaNqJHoY52Ai");
+      analytics.page();
+      }}();
+    </script>
+    <!-- End Segment -->
+
+
+
+  <link href="https://fonts.googleapis.com/css2?family=Open+Sans:wght@300;400;600;700;800&display=swap" rel="stylesheet">
+  <link rel="stylesheet" href="/assets/styles/homepage.css?1648185798158806192" />
+  <link rel="stylesheet" href="//cdn.jsdelivr.net/gh/highlightjs/cdn-release@10.0.0/build/styles/default.min.css">
+</head>
+
+<body>
+  
+
+    <!-- Google Tag Manager (noscript) -->
+    <noscript><iframe src="https://www.googletagmanager.com/ns.html?id=GTM-TZXFZRS"
+    height="0" width="0" style="display:none;visibility:hidden"></iframe></noscript>
+    <!-- End Google Tag Manager (noscript) -->
+
+  <section class="topbar topbar--is-dark  topbar--is-visible">
+    <div class="topbar__content">
+        <a class="topbar__logo-container" href="https://www.metricfire.com/">
+            <img class="topbar__logo" src="/assets/images/logo-light@2x.png" alt="Logo of MetricFire" />
+        </a>
+        <span class="topbar__mobile-menu-expander"></span>
+        <nav class="topbar__menu">
+            <ul class="topbar__menu-list">
+                
+                    
+                            <li class="topbar__menu-item">
+                                <a class="topbar__menu-link" href="https://www.metricfire.com/pricing/" >Pricing</a>
+                            </li>
+                        
+                
+                    
+                            <li class="topbar__menu-item topbar__submenu">
+                                <span class="topbar__menu-link topbar__submenu-header">Products</span>
+                                <ul class="topbar__submenu-list">
+                                    
+                                        <li class="topbar__submenu-item">
+                                            <a class="topbar__submenu-link" href="https://www.metricfire.com/graphite-as-a-service/"  ">
+                                                Hosted Graphite
+                                            </a>
+                                        </li>
+                                    
+                                        <li class="topbar__submenu-item">
+                                            <a class="topbar__submenu-link" href="https://www.metricfire.com/hosted-prometheus/"  ">
+                                                Hosted Prometheus
+                                            </a>
+                                        </li>
+                                    
+                                        <li class="topbar__submenu-item">
+                                            <a class="topbar__submenu-link" href="https://www.metricfire.com/hosted-grafana/"  ">
+                                                Grafana as a Service
+                                            </a>
+                                        </li>
+                                    
+                                </ul>
+                            </li>
+                        
+                
+                    
+                            <li class="topbar__menu-item">
+                                <a class="topbar__menu-link" href="https://www.metricfire.com/docs/" >Docs</a>
+                            </li>
+                        
+                
+                    
+                            <li class="topbar__menu-item">
+                                <a class="topbar__menu-link" href="https://www.metricfire.com/blog/" >Blog</a>
+                            </li>
+                        
+                
+                    
+                            <li class="topbar__menu-item topbar__submenu">
+                                <span class="topbar__menu-link topbar__submenu-header">Resources</span>
+                                <ul class="topbar__submenu-list">
+                                    
+                                        <li class="topbar__submenu-item">
+                                            <a class="topbar__submenu-link" href="https://www.metricfire.com/integrations/"  ">
+                                                Integrations
+                                            </a>
+                                        </li>
+                                    
+                                        <li class="topbar__submenu-item">
+                                            <a class="topbar__submenu-link" href="https://www.metricfire.com/customers/"  ">
+                                                Customers
+                                            </a>
+                                        </li>
+                                    
+                                        <li class="topbar__submenu-item">
+                                            <a class="topbar__submenu-link" href="https://www.metricfire.com/ebook/"  ">
+                                                Ebook
+                                            </a>
+                                        </li>
+                                    
+                                </ul>
+                            </li>
+                        
+                
+                    
+                            <li class="topbar__menu-item">
+                                <a class="topbar__menu-button" href="https://www.hostedgraphite.com/accounts/signup?utm_source=metricfire" target="_blank">Sign Up</a>
+                            </li>
+                    
+                
+                    
+                            <li class="topbar__menu-item">
+                                <a class="topbar__menu-link" href="tel:+18552067352" >+1 (855) 206-7352</a>
+                            </li>
+                        
+                
+            </ul>
+        </nav>
+    </div>
+    
+        <div class="topbar__content topbar__content--search">
+            
+    <h2 class="search-form__title search-form__title--topbar">Looking for a specific post?</h2>
+    <form id="search-form" class="search-form__form search-form__form--topbar">
+        <input name="query" type="text" maxlength="30" placeholder="Search posts" class="search-form__input  search-form__input--topbar">
+        <button type="submit" class="search-form__button search-form__button--topbar">Search</button>
+    </form>
+
+
+<script type="text/javascript">
+    window.addEventListener('DOMContentLoaded', function() {
+        document.querySelectorAll('#search-form').forEach((form) => {
+            form.onsubmit = function(ev) {
+                ev.preventDefault();
+
+                const queryInput = form.querySelector('input[name="query"]');
+                window.location.href = `/blog/search/?query=${encodeURIComponent(queryInput.value)}`;
+            }
+        });
+    });
+</script>
+        </div>
+    
+    
+</section>
+
+    <div class="topbar-space"></div>
+
+<script type="text/javascript">
+    window.addEventListener('DOMContentLoaded', function() {
+        var topbarElement = document.querySelector('.topbar');
+        window.addEventListener('scroll', function() {
+            if (window.scrollY > 0) {
+                topbarElement.classList.add('topbar--is-scrolled');
+            } else {
+                topbarElement.classList.remove('topbar--is-scrolled');
+            }
+        });
+
+        document.querySelector('.topbar__mobile-menu-expander').addEventListener('click', function() {
+            topbarElement.classList.toggle('topbar--expanded');
+            document.querySelector('body').classList.toggle('scroll-lock');
+        });
+
+        document.querySelectorAll('.topbar__submenu').forEach(function(el) {
+            el.addEventListener('click', function(e) {
+                if (!topbarElement.classList.contains('topbar--expanded')) return;
+                el.querySelector('.topbar__submenu-list').classList.toggle('topbar__submenu-list--mobile-visible')
+            });
+        });
+    });
+
+</script>
+
+  <section class="blog-post wrapper">
+    <div class="main">
+      <div class="sidebar-bottom-mobile">
+        <h4 class="sidebar-bottom-title-mobile">Join Our Newsletter</h4>
+        <input class="homepage-header__input mobile" type="email" name="email" placeholder="email address">
+        <a class="topbar__menu-button sidebar-button subscribe subscribe-mobile" target="_blank">Subscribe</a>
+      </div>
+
+      <div class="blog-post banner">
+        <h1 class="homepage-header__title">Try MetricFire now!</h1>
+        <p class="homepage-header__description">Get MetricFire free for 14 days.
+          <br>
+          No credit card required.
+        </p>
+        <a class="topbar__menu-button" target="_blank">Try now</a>
+        <img class="banner-img" src="/assets/img/mf-mascot-cta.png" alt="banner">
+      </div>
+
+      <div class="blog-post__content">
+        <img class="blog-post__featured-image" src="https://fs.buttercms.com/resize=width:940/4ZtpOKHwRSWOJmorkn0d" alt="Graphite for Node.js Monitoring" />
+        <h1 class="blog-post__title">Graphite for Node.js Monitoring</h1>
+        <div class="blog-post__meta">
+          <div class="blog-post__meta-date">20 May 2020</div>
+          
+            <a class="blog-post__meta-category" href="https://www.metricfire.com/blog/category/graphite/">
+              GRAPHITE
+            </a>
+          
+          <a class="blog-post__meta-author" href="https://www.metricfire.com/blog/author/madhur-ahuja/">
+            <img src="https://fs.buttercms.com/resize=height:64/fOETgb2S7qII7ZnXejeF" class="blog-post__meta-author-image" alt="Picture of the author, Madhur" />
+            Madhur Ahuja
+          </a>
+        </div>
+        <div class="blog-post__post-content blog-container common-container">
+          <div class="addthis_inline_share_toolbox"></div>
+          
+
+    <div class="toc blog-post__post-toc">
+        <h3>Table of Contents</h3>
+        <ol>
+  <li><a href="#Introduction">Introduction</a></li>
+  <li><a href="#Introduction-to-Graphite-StatsD-and-Grafana">Introduction to Graphite, StatsD and Grafana</a>
+    <ol>
+      <li><a href="#Why-do-we-need-StatsD">Why do we need StatsD?</a></li>
+      <li><a href="#Why-do-we-use-Grafana">Why do we use Grafana?</a></li>
+    </ol>
+  </li>
+  <li><a href="#Setting-up-Graphite-StatsD-and-Grafana">Setting up Graphite, StatsD and Grafana</a></li>
+  <li><a href="#Setting-up-a-Sample-Nodejs-project-for-Monitoring">Setting up a Sample Node.js project for Monitoring</a></li>
+  <li><a href="#Plotting-the-Visualizations-on-Grafana">Plotting the Visualizations on Grafana</a></li>
+  <li><a href="#Conclusion">Conclusion</a></li>
+</ol>
+    </div>
+
+          <h2 id="Introduction">Introduction</h2>
+<p>In this article, we will look at how to monitor Node.js applications using <a href="https://www.metricfire.com/blog/monitoring-with-graphite-architecture-and-concepts">Graphite</a> and <a href="https://www.metricfire.com/blog/statsd-gauges-counters-and-timers-on-metricfire">StatsD</a>, and plot the visualizations on a <a href="https://www.metricfire.com/hosted-grafana">Grafana dashboard</a>. Node.js is a popular framework for creating <a href="https://www.metricfire.com/blog/microapps-vs-microservices">microservices</a>. Its asynchronous nature allows for high scalability and low latency especially for I/O bound tasks. However, it is important to have a proper monitoring setup for any application which is running in a production environment.</p>
+<p><a href="https://www.metricfire.com/">MetricFire</a> is a Hosted Graphite, StatsD and Grafana platform for monitoring time-series metrics. You can use these open source software directly in the MetricFire web app, with no set up or hassle when it comes to scaling, updates, or plugins. You should sign up for the MetricFire free trial <a href="https://metricfire.com/trial-demo">here</a> and start monitoring your Node.js now.</p>
+<p></p>
+<h2 id="Introduction-to-Graphite-StatsD-and-Grafana">Introduction to Graphite, StatsD and Grafana</h2>
+<p>Graphite is an Open Source software which can store multiple types of metrics such as counters, timers and gauges. It primarily consists of three components -</p>
+<ul>
+<li>Graphite Web - A web application to view the metrics data stored inside Graphite.</li>
+<li>Carbon - Server component which listens for incoming metrics on TCP / UDP Protocol.</li>
+<li>Whisper - The database storage for metrics.</li>
+</ul>
+<p></p>
+<p><a href="https://www.metricfire.com/blog/statsd-gauges-counters-and-timers-on-metricfire">StatsD</a> is a network daemon which listens for metrics from applications and delivers them to Graphite. Hence, StatsD acts as a middle man between the Graphite and the application.&nbsp;</p>
+<p></p>
+<h3 id="Why-do-we-need-StatsD">Why do we need StatsD?</h3>
+<p>One question that normally arises in the minds of users is: When Graphite itself can listen for metrics, why do we need StatsD? Well, the answer is aggregation. StatsD can do the aggregation of your metrics and then it sends the aggregated metric over to Graphite, saving Graphite from unnecessary increased load.</p>
+<p>When using MetricFire, we actually have a custom agent designed for avoiding the hassle of a typical StatsD and collectd stack. Check out the MetricFire agent <a href="https://www.metricfire.com/blog/how-to-set-up-the-hosted-graphite-agent">here</a>.</p>
+<p></p>
+<h3 id="Why-do-we-use-Grafana">Why do we use Grafana?</h3>
+<p>For our use case, we will be using <a href="https://www.metricfire.com/blog/our-favorite-grafana-dashboards">Grafana</a> to plot the visualizations from the data stored inside Graphite. This is because Grafana is an advanced tool for visualization compared to Graphite Web.</p>
+<p>We will not go into the details of Graphite or Grafana in this article. If you like you can go over our existing articles on Graphite such as <a href="https://www.metricfire.com/blog/using-grafana-and-graphite-to-monitor-server-load/" rel="follow">Graphite and Grafana</a>, <a href="https://www.metricfire.com/blog/monitoring-with-graphite-installation-and-setup">Monitoring with Graphite: Installation and Setup</a> and <a href="https://www.metricfire.com/blog/monitoring-with-graphite-architecture-and-concepts">Monitoring with Graphite: Architecture and Concepts</a>.</p>
+<p></p>
+<div class="banner-cta" data-title="Try MetricFire now!" data-text="Get MetricFire free for 14 days. No credit card required." data-action=""></div>
+<p><span style="font-weight: 400;"></span></p>
+<h2 id="Setting-up-Graphite-StatsD-and-Grafana">Setting up Graphite, StatsD and Grafana</h2>
+<p>We will use docker to run Graphite, Grafana and StatsD on our system. Here is the simple docker-compose file which will do the job for us:</p>
+<p>&nbsp;</p>
+<pre><code>version: "3"
+services:
+    grafana:
+        image: grafana/grafana
+        ports:
+            - 3000:3000
+
+    graphite-statsd:
+        image: graphiteapp/docker-graphite-statsd
+        ports:
+            - 2003-2004:2003-2004
+            - 2023-2024:2023-2024
+            - 8125:8125/udp
+            - 8126:8126
+            - 8080:80</code></pre>
+<p>&nbsp;</p>
+<p>We will also verify that Grafana is up and running by going to <a href="http://localhost:3000">http://localhost:3000</a>. The default credentials are admin/admin.&nbsp;</p>
+<p>&nbsp;</p>
+<p><img src="https://cdn.buttercms.com/Wj4HYWlJSjKvQG5EJnDQ" alt="undefined" style="display: block; margin-left: auto; margin-right: auto;" /></p>
+<p>&zwj;&nbsp;</p>
+<p>Now, we will add Graphite as the data source in Grafana. Browse to the data source section of Grafana and add Graphite as the data source, as shown below:</p>
+<p>&nbsp;&zwj;</p>
+<p><img src="https://cdn.buttercms.com/c1qCrIZFQvyC5lVZml5P" alt="undefined" style="display: block; margin-left: auto; margin-right: auto;" /></p>
+<p>&nbsp;&zwj;</p>
+<h2 id="Setting-up-a-Sample-Nodejs-project-for-Monitoring">Setting up a Sample Node.js project for Monitoring</h2>
+<p>We will create a very simple Node.js Express application to demonstrate the capturing of metrics in Graphite and StatsD.</p>
+<p>Express is the most popular Node.js framework to create microservices. We&rsquo;ll use a library open sourced by Uber called <a href="https://www.npmjs.com/package/express-statsd">express-statsD</a> to capture the response times and status code metrics and send it to StatsD.</p>
+<p>First, let&rsquo;s set up the package.json file, which is a manifest file that describes the dependencies of our node application. The sample package.json to be used is given below:</p>
+<p>&nbsp;</p>
+<pre><code>{
+    "name": "node-statsd-example",
+    "version": "1.0.0",
+    "description": "",
+    "main": "index.js",
+    "scripts": {
+        "test": "echo \"Error: no test specified\" &amp;&amp; exit 1"
+    },
+    "author": "",
+    "license": "ISC",
+    "dependencies": {
+        "express-statsd": "^0.3.0",
+        "express": "^4.17.1"
+    }
+}</code></pre>
+<p>&nbsp;</p>
+<p>Now we will write the code for our application which creates two endpoints, hooks up the middleware to send the information to StatsD, and responds with either success or failure:</p>
+<p>&nbsp;</p>
+<pre><code>const express = require("express");
+const app = express();
+const expressStatsd = require("express-statsd");
+
+app.use(expressStatsd());
+
+function statsd(path) {
+    return function (req, res, next) {
+        var method = req.method || "unknown_method";
+        req.statsdKey = ["http", method.toLowerCase(), path].join(".");
+        next();
+    };
+}
+
+app.get("/", statsd("root"), (req, res) =&gt; {
+    if (between(0, 10) &gt; 5) {
+        res.status(500).send();
+    }
+    res.send("Response from a simple GET API");
+});
+
+app.get("/products", statsd("products"), (req, res) =&gt; {
+    if (between(0, 10) &gt; 5) {
+        res.status(500).send();
+    }
+    res.send("Response from a simple GET API");
+});
+
+app.listen(8000, () =&gt; {
+    console.log("Node server started on port 8000");
+});
+
+function between(min, max) {
+    return Math.floor(Math.random() * (max - min) + min);
+}</code></pre>
+<p>&nbsp;</p>
+<p>Save both the files as package.json and app.js inside a directory and run the application by executing &ldquo;npm install&rdquo; and then &ldquo;node app.js&rdquo;. Once the application is running, browse to endpoints <a href="http://localhost:8000/">http://localhost:8000/</a> and <a href="http://localhost:8000/products">http://localhost:8000/products</a> to execute the endpoints.</p>
+<p>&zwj;&nbsp;</p>
+<h2 id="Plotting-the-Visualizations-on-Grafana">Plotting the Visualizations on Grafana</h2>
+<p>Let&rsquo;s head over to Grafana and create the visualizations for the metrics currently being emitted through our application. Create a new Dashboard in Grafana and add a new graph visualization. We will choose the data source as Graphite and construct the query to represent the response time of our endpoints. In the end, the configuration should look like below:</p>
+<p>&nbsp;&nbsp;</p>
+<p><img src="https://cdn.buttercms.com/cXhzScWVQeu7q5WN7vG2" alt="undefined" style="display: block; margin-left: auto; margin-right: auto;" /></p>
+<p>&nbsp;</p>
+<p>The above dashboard represents Latency Per Route. In a similar way, we can plot many interesting metrics such as Average Latency, No. of 5xx Errors and Request Rate.</p>
+<p>If we add those visualizations just mentioned, we can create a dashboard that looks like this for our node.js application:</p>
+<p>&nbsp;&nbsp;</p>
+<p><img src="https://cdn.buttercms.com/50neUIlLS7CypoPoYiAR" alt="undefined" style="display: block; margin-left: auto; margin-right: auto;" /></p>
+<p>&nbsp;</p>
+<p>You can also put up alerts on these visualizations if they exceed some critical threshold value. Check out <a href="https://www.metricfire.com/blog/grafana-dashboards-from-basic-to-advanced">Grafana Dashboards from Basic to Advanced</a> to learn how to set up Grafana alerts, and build custom dashboards.</p>
+<p></p>
+<h2 id="Conclusion">Conclusion</h2>
+<p>In this article, we saw how easy it is to set up the Node.js monitoring dashboard with help of Graphite, StatsD and Grafana.&nbsp;</p>
+<p><a href="https://www.metricfire.com/">MetricFire</a> also provides production ready <a href="https://www.metricfire.com/graphite-as-a-service">Hosted Graphite</a> and <a href="https://www.metricfire.com/hosted-grafana">Hosted Grafana</a> along with&nbsp; many other benefits so that users can focus on building their applications, and let MetricFire take care of managing the scalability and storage of their metrics.</p>
+<p>Sign up for the MetricFire <a href="https://metricfire.com/trial-demo">free trial</a> to set up Graphite and build Grafana dashboards now. You can also <a href="https://metricfire.com/demo">book a demo</a> and talk to the MetricFire team about how you can best set up your monitoring stack.&nbsp;</p>
+          <div class="addthis_inline_share_toolbox right"></div>
+        </div>
+        
+        <div class="blog-post__tags">
+          
+            <span class="blog-post__tag-item">#grafana</span>
+          
+            <span class="blog-post__tag-item">#graphite</span>
+          
+            <span class="blog-post__tag-item">#javascript</span>
+          
+            <span class="blog-post__tag-item">#monitoring</span>
+          
+            <span class="blog-post__tag-item">#node</span>
+          
+            <span class="blog-post__tag-item">#nodejs</span>
+          
+            <span class="blog-post__tag-item">#statsd</span>
+          
+        </div>
+        
+        <div id="disqus_thread"></div>
+        <noscript>
+          Please enable JavaScript to view the
+          <a href="https://disqus.com/?ref_noscript" rel="nofollow">
+            comments powered by Disqus.
+          </a>
+        </noscript>
+      </div>
+    </div>
+
+    <div class="sidebar">
+      <div class="sidebar-img" style="margin: 0 auto;">
+        <img class="mascot" src="/assets/img/mf-mascot.png" alt="mf-mascot">
+        <h3 class="sidebar-title">Understand your data<br>at a glance</h3>
+        <p class="sidebar-description">Get MetricFire free <br>for 14 days.</p>
+        <a class="topbar__menu-button sidebar-button" href="https://www.hostedgraphite.com/signup?utm_source=metricfire" target="_blank">
+          Get Started
+        </a>
+      </div>
+      <div class="sidebar-bottom">
+        <h1 class="sidebar-bottom-title">Join Our　<br> Newsletter</h1>
+        <p class="sidebar-bottom-description">Subscribe to our newsletter<br>to stay in the loop.</p>
+
+        <!-- Begin of MailChimp Template -->
+        <link href="//cdn-images.mailchimp.com/embedcode/classic-10_7.css" rel="stylesheet" type="text/css">
+        <style type="text/css">
+          #mc_embed_signup {background: #fff;clear: left;font: 14px Helvetica, Arial, sans-serif;width: 100%;}
+
+          /* Add your own Mailchimp form style overrides in your site stylesheet or in this style block. We recommend moving this block and the preceding CSS link to the HEAD of your HTML file. */
+        </style>
+        <div id="mc_embed_signup">
+          <form novalidate
+                method="post"
+                target="_blank"
+                class="validate"
+                id="mc-embedded-subscribe-form"
+                name="mc-embedded-subscribe-form"
+                style="width: 90%;margin: 0 auto;"
+                action="https://metricfire.us15.list-manage.com/subscribe/post?u=366ce1777c8fb6eba624e0432&amp;id=7e6c22a377">
+            <div id="mc_embed_signup_scroll">
+              <input type="email" value="" name="EMAIL" class="required email" id="mce-EMAIL" style="margin: 0 7%;">
+            </div>
+            <div id="mce-responses" class="clear">
+              <div class="response" id="mce-error-response" style="display:contents;margin-top: -5em;"></div>
+              <div class="response" id="mce-success-response" style="display:none"></div>
+            </div>
+            <!-- real people should not fill this in and expect good things - do not remove this or risk form bot signups-->
+            <div style="position: absolute; left: -5000px;" aria-hidden="true">
+              <input type="text" name="b_366ce1777c8fb6eba624e0432_7e6c22a377" tabindex="-1" value="">
+            </div>
+            <div class="clear">
+              <input type="submit" value="Subscribe" name="subscribe" id="mc-embedded-subscribe" class="topbar__menu-button" style="margin: 1em auto !important;">
+            </div>
+          </form>
+        </div>
+      </div>
+      <script type='text/javascript' src='//s3.amazonaws.com/downloads.mailchimp.com/js/mc-validate.js'></script>
+      <script type='text/javascript'>
+        (function ($) { window.fnames = new Array(); window.ftypes = new Array(); fnames[0] = 'EMAIL'; ftypes[0] = 'email'; }(jQuery)); var $mcj = jQuery.noConflict(true);
+      </script>
+      <!--End mc_embed_signup-->
+    </div>
+  </section>
+
+  
+<section class="blog-simple-boxes">
+    <div class="blog-simple-boxes__content">
+        <span class="blog-simple-boxes__category">Hungry for more knowledge?</span>
+        <h3 class="blog-simple-boxes__title">Related posts</h3>
+        <div class="blog-simple-boxes__grid">
+            
+                <a class="blog-simple-boxes__card" href="https://www.metricfire.com/blog/what-is-graphite/">
+                    <img class="blog-simple-boxes__card-thumbnail" src="https://cdn.buttercms.com/zP3M577IQceCQ1rKX2Et" alt="What is Graphite?"/>
+                    <h4 class="blog-simple-boxes__card-title">
+                        What is Graphite?
+                    </h4>
+                    <p class="blog-simple-boxes__card-description">
+                        Find out what is Graphite and how you can use Graphite to monitor your infrastructure. Use Hosted Graphite by MetricFire to do your Graphite monitoring.
+                    </p>
+                </a>
+            
+                <a class="blog-simple-boxes__card" href="https://www.metricfire.com/blog/graphite-metrics-delay-why-it-happens-and-what-to-do/">
+                    <img class="blog-simple-boxes__card-thumbnail" src="https://cdn.buttercms.com/u4aJ9h4bRX2GUdeep8jW" alt="Graphite Metrics Delay: Why it Happens and What to Do"/>
+                    <h4 class="blog-simple-boxes__card-title">
+                        Graphite Metrics Delay: Why it Happens and What to Do
+                    </h4>
+                    <p class="blog-simple-boxes__card-description">
+                        Why Graphite metrics delays occur and what to do about it. Four easy fixes to get you kickstarted on your data visualization journey.
+                    </p>
+                </a>
+            
+                <a class="blog-simple-boxes__card" href="https://www.metricfire.com/blog/graphite-vs-influxdb/">
+                    <img class="blog-simple-boxes__card-thumbnail" src="https://cdn.buttercms.com/gSW8aYPCQ2Dp9IYs6Q2j" alt="Graphite vs. InfluxDB"/>
+                    <h4 class="blog-simple-boxes__card-title">
+                        Graphite vs. InfluxDB
+                    </h4>
+                    <p class="blog-simple-boxes__card-description">
+                        When should you use Graphite over InfluxDB? Compare Graphite vs InfluxDB,  and try it out with the Hosted Graphite free trial by MetricFire.
+                    </p>
+                </a>
+            
+        </div>
+    </div>
+</section>
+
+  
+
+<footer class="footer">
+    <div class="footer__wrapper">
+        <div class="footer__column footer__column--first">
+            <img class="footer__logo" src="https://www.metricfire.com/assets/images/logo-light@2x.png" alt="MetricFire Logo"/>
+            <ul class="footer__list footer__list--align-left">
+                <li class="footer__list-item">
+                    <a href="mailto:info@metricfire.com" target="_blank" class="footer__link">
+                        <img class="footer__icon" src="https://www.metricfire.com/assets/images/icons/icon-info.svg" alt="Information I icon"/>
+                        info@metricfire.com
+                    </a>
+                </li>
+                <li class="footer__list-item">
+                    <a href="mailto:sales@metricfire.com" target="_blank" class="footer__link">
+                        <img class="footer__icon" src="https://www.metricfire.com/assets/images/icons/icon-mail.svg" alt="Mail icon"/>
+                        sales@metricfire.com
+                    </a>
+                </li>
+                <li class="footer__list-item">
+                    <a href="tel:+18552067352" target="_blank" class="footer__link">
+                        <img class="footer__icon" src="/assets/images/icons/icon-phone.svg" alt="Telephone icon"/>
+                        +1 (855) 206-7352
+                    </a>
+                </li>
+            </ul>
+        </div>
+
+        
+            <div class="footer__column">
+                <h3 class="footer__title">About</h3>
+                <ul class="footer__list">
+                    
+                        <li class="footer__list-item">
+                            <a href="https://www.metricfire.com/contact/" data-contact-origin="footer"  class="footer__link">Contact Us</a>
+                        </li>
+                    
+                        <li class="footer__list-item">
+                            <a href="https://www.metricfire.com/company/"   class="footer__link">Company</a>
+                        </li>
+                    
+                        <li class="footer__list-item">
+                            <a href="https://www.metricfire.com/careers/"   class="footer__link">Careers</a>
+                        </li>
+                    
+                        <li class="footer__list-item">
+                            <a href="https://www.metricfire.com/roadmap/"   class="footer__link">Product Roadmap</a>
+                        </li>
+                    
+                </ul>
+            </div>
+        
+            <div class="footer__column">
+                <h3 class="footer__title">Resources</h3>
+                <ul class="footer__list">
+                    
+                        <li class="footer__list-item">
+                            <a href="https://www.metricfire.com/blog/"   class="footer__link">Blog</a>
+                        </li>
+                    
+                        <li class="footer__list-item">
+                            <a href="https://www.metricfire.com/docs/"   class="footer__link">Docs</a>
+                        </li>
+                    
+                        <li class="footer__list-item">
+                            <a href="https://www.hostedgraphite.com/docs/faq.html"  target="_blank" class="footer__link">FAQs</a>
+                        </li>
+                    
+                        <li class="footer__list-item">
+                            <a href="https://www.metricfire.com/security/"   class="footer__link">Security</a>
+                        </li>
+                    
+                        <li class="footer__list-item">
+                            <a href="https://www.metricfire.com/customers/"   class="footer__link">Customers</a>
+                        </li>
+                    
+                        <li class="footer__list-item">
+                            <a href="https://www.metricfire.com/terms-of-services/"   class="footer__link">Terms Of Use</a>
+                        </li>
+                    
+                        <li class="footer__list-item">
+                            <a href="https://www.metricfire.com/privacy-policy/"   class="footer__link">Privacy Policy</a>
+                        </li>
+                    
+                </ul>
+            </div>
+        
+            <div class="footer__column">
+                <h3 class="footer__title">Platform</h3>
+                <ul class="footer__list">
+                    
+                        <li class="footer__list-item">
+                            <a href="https://www.metricfire.com/graphite-as-a-service/"   class="footer__link">Hosted Graphite</a>
+                        </li>
+                    
+                        <li class="footer__list-item">
+                            <a href="https://www.metricfire.com/hosted-prometheus/"   class="footer__link">Hosted Prometheus</a>
+                        </li>
+                    
+                        <li class="footer__list-item">
+                            <a href="https://www.metricfire.com/hosted-grafana/"   class="footer__link">Hosted Grafana</a>
+                        </li>
+                    
+                        <li class="footer__list-item">
+                            <a href="https://status.hostedgraphite.com/"  target="_blank" class="footer__link">Status page</a>
+                        </li>
+                    
+                        <li class="footer__list-item">
+                            <a href="https://www.metricfire.com/integrations/"   class="footer__link">Integrations</a>
+                        </li>
+                    
+                </ul>
+            </div>
+        
+            <div class="footer__column">
+                <h3 class="footer__title">Follow Us</h3>
+                <ul class="footer__list">
+                    
+                        <li class="footer__list-item">
+                            <a href="https://twitter.com/Metricfire"  target="_blank" class="footer__link">Twitter</a>
+                        </li>
+                    
+                        <li class="footer__list-item">
+                            <a href="https://www.youtube.com/channel/UCXGYTgvkQXDES8OcurUdbow"  target="_blank" class="footer__link">YouTube</a>
+                        </li>
+                    
+                        <li class="footer__list-item">
+                            <a href="https://www.facebook.com/metricfire/"  target="_blank" class="footer__link">Facebook</a>
+                        </li>
+                    
+                        <li class="footer__list-item">
+                            <a href="https://www.linkedin.com/company/metricfire/"  target="_blank" class="footer__link">LinkedIn</a>
+                        </li>
+                    
+                </ul>
+            </div>
+        
+    </div>
+    <div class="footer__caption">
+        @ 2021 MetricFire Corporation. All Rights Reserved.
+    </div>
+</footer>
+  <script src="//cdn.jsdelivr.net/gh/highlightjs/cdn-release@10.0.0/build/highlight.min.js"></script>
+  <script src="//cdn.jsdelivr.net/npm/clipboard@2/dist/clipboard.min.js"></script>
+  <script>
+    (function () {
+      var d = document, s = d.createElement('script');
+      s.src = 'https://metricfire-com.disqus.com/embed.js';
+      s.setAttribute('data-timestamp', +new Date());
+      (d.head || d.body).appendChild(s);
+    })();
+  </script>
+  <div class="banner-cta-template">
+    <div class="banner-cta__content">
+      <h3 class="banner-cta__title">Try MetricFire now!</h3>
+      <p class="banner-cta__text">Try MetricFire free for 7 days. No credit card required.</p>
+      <form class="banner-cta__form" method="POST" action="https://gateway.metricfire.com/leads/" data-track-and-forward="email">
+        <fieldset class="banner-cta__input-set" name="email" data-error="Please type your email">
+          <input class="banner-cta__input" placeholder="Email address" name="email" type="email" />
+        </fieldset>
+        <input type="hidden" name="lead_source" value="Blog Post Banner Form">
+        <input type="hidden" name="redirect_url" value="https://www.metricfire.com/demo/">
+        <input type="hidden" name="_origin_href" value="" />
+        <input type="hidden" name="utm_source" value="" />
+        <input type="hidden" name="utm_medium" value="" />
+        <input type="hidden" name="utm_campaign" value="" />
+        <input type="hidden" name="utm_content" value="" />
+        <input type="hidden" name="utm_term" value="" />
+        <input type="hidden" name="GAID" value="" />
+        <input type="hidden" name="start_path" value="" />
+        <button class="banner-cta__button" type="submit">Get Started</button>
+      </form>
+      <span class="banner-cta__mascoot"></span>
+    </div>
+  </div>
+
+  <script>
+    window.intercomSettings = {
+      app_id: "ymvqkyiw"
+    };
+  </script>
+
+  <script>
+    // We pre-filled your app ID in the widget URL: 'https://widget.intercom.io/widget/ymvqkyiw'
+    (function () { var w = window; var ic = w.Intercom; if (typeof ic === "function") { ic('reattach_activator'); ic('update', w.intercomSettings); } else { var d = document; var i = function () { i.c(arguments); }; i.q = []; i.c = function (args) { i.q.push(args); }; w.Intercom = i; var l = function () { var s = d.createElement('script'); s.type = 'text/javascript'; s.async = true; s.src = 'https://widget.intercom.io/widget/ymvqkyiw'; var x = d.getElementsByTagName('script')[0]; x.parentNode.insertBefore(s, x); }; if (document.readyState === 'complete') { l(); } else if (w.attachEvent) { w.attachEvent('onload', l); } else { w.addEventListener('load', l, false); } } })();
+  </script>
+
+  <script type="text/javascript">
+    document.addEventListener('DOMContentLoaded', function (event) {
+      document.querySelectorAll('pre code').forEach(function (block) {
+        const codeText = block.innerHTML;
+        hljs.highlightBlock(block);
+
+        const copyButton = document.createElement('a');
+        const tooltip = document.createElement('span');
+        tooltip.classList.add('tooltip');
+        copyButton.classList.add('clipboard-copy');
+        const clipboard = new ClipboardJS(copyButton, {
+          text: function () {
+            return codeText;
+          }
+        });
+
+        clipboard.on('success', function (e) {
+          copyButton.classList.add('copied');
+          const removeCopied = function () {
+            copyButton.classList.remove('copied');
+            copyButton.removeEventListener('mouseleave', removeCopied);
+          }
+
+          copyButton.addEventListener('mouseleave', removeCopied);
+        });
+
+        copyButton.appendChild(tooltip);
+        block.parentNode.appendChild(copyButton);
+      });
+
+      const bannerTemplate = document.querySelector('.banner-cta-template');
+
+      document.querySelectorAll('.blog-post .banner-cta').forEach(function (bannerContainer) {
+        const title = bannerContainer.dataset.title;
+        const text = bannerContainer.dataset.text;
+        const action = bannerContainer.dataset.action;
+
+        if (title || text || action) {
+          const copy = bannerTemplate.cloneNode(true);
+
+          if (title) {
+            copy.querySelector('.banner-cta__title').innerHTML = title;
+          }
+          if (text) {
+            copy.querySelector('.banner-cta__text').innerHTML = text;
+          }
+          if (action) {
+            copy.querySelector('.banner-cta__form').action = action;
+          }
+
+          bannerContainer.innerHTML = copy.innerHTML;
+        } else {
+          bannerContainer.innerHTML = bannerTemplate.innerHTML;
+        }
+      });
+    });
+  </script>
+  <script>
+    const TRACK_AND_FORWARD_ENDPOINT = 'https://hooks.zapier.com/hooks/catch/29635/ozdf6n1';
+    const utmCodes = ['utm_source', 'utm_medium', 'utm_campaign', 'utm_term', 'utm_content'];
+
+    const setContactFormOriginCallback = () => {
+        document.querySelectorAll('[data-contact-origin]').forEach(function(el) {
+            const { contactOrigin } = el.dataset;
+
+            el.addEventListener('click', function(e) {
+                sessionStorage.setItem('contact-form-origin', contactOrigin);
+                sessionStorage.setItem('contact-form-origin-href', window.location.href);
+            });
+        });
+    };
+
+    const setupTrackAndForwardForms = () => {
+        const emailRegex = /^\w+([\.-]?\w+)*@\w+([\.-]?\w+)*(\.\w{2,3})+$/;
+
+        document.querySelectorAll('[data-track-and-forward]').forEach(function(el) {
+            const form = el;
+            const inputName = el.dataset.trackAndForward;
+
+            const inputOriginHref = form.querySelector('input[name="_origin_href"]');
+            inputOriginHref.value = window.location.href;
+
+            form.addEventListener('submit', function(e) {
+                e.preventDefault();
+
+                const formData = new FormData(form);
+                const inputValue = formData.get(inputName);
+
+                const inputSet = form.querySelector(`fieldset[name="${inputName}"]`);
+                if (!inputValue || (inputName === 'email' && !emailRegex.test(inputValue))) {
+                    inputSet.classList.add('homepage-header__input-set--has-error');
+                    
+                    const error = document.createElement('span');
+                    error.classList.add('homepage-header__input-error');
+                    error.appendChild(document.createTextNode(inputSet.dataset.error));
+                    inputSet.append(error);
+
+                    return false;
+                } else {
+                    inputSet.classList.remove('homepage-header__input-set--has-error');
+                    inputSet.querySelectorAll('.homepage-header__input-error').forEach((el) => el.remove());
+                }
+
+                var xhr = new XMLHttpRequest();
+                xhr.open('POST', TRACK_AND_FORWARD_ENDPOINT, true);
+                xhr.setRequestHeader("Content-Type", "application/x-www-form-urlencoded");
+
+                const encodedValue = encodeURIComponent(formData.get(inputName));
+                const encodedOriginHref = encodeURIComponent(formData.get('_origin_href'));
+                const encodedLocation = encodeURIComponent(form.action);
+
+                const utms = utmCodes.map((code) => `${code}=${encodeURIComponent(formData.get(code))}`);
+
+                xhr.onreadystatechange = function() {
+                    if (this.readyState === XMLHttpRequest.DONE && this.status === 200) {
+                        let redirectUrl = e.target.dataset.redirectUrl;
+                        if( redirectUrl ) {
+                          window.location.href = redirectUrl;
+                        } else {
+                          // Submit the form. Make sure to not submit the form using jQuery's submit handler.
+                          e.target.submit();
+                        }
+                        // const finalUrl = [
+                        //     form.action,
+                        // ]
+
+                        // finalUrl.push(finalUrl[0].includes('?') ? '&' : '?');
+                        // finalUrl.push(`${inputName}=${encodedValue}`);
+                        // window.location.href = finalUrl.join('');
+                    }
+                }
+
+                xhr.send(`${inputName}=${encodedValue}&location=${encodedLocation}&origin_href=${encodedOriginHref}&${utms.join('&')}`);
+            });
+        });
+    };
+
+    const handleUtmParameters = () => {
+        const params = new URLSearchParams(location.search);
+
+        utmCodes.forEach((code) => {
+            const fields = document.querySelectorAll(`input[name="${code}"]`);
+            const value = params.get(code) || sessionStorage.getItem(code);
+
+            if (fields.length && value) {
+                fields.forEach((el) => { el.value = value });
+            }
+
+            if (value) {
+                sessionStorage.setItem(code, value);
+            }
+        });
+    }
+
+    document.addEventListener('DOMContentLoaded', function() {
+        setContactFormOriginCallback();
+        setupTrackAndForwardForms();
+        handleUtmParameters();
+    });
+</script>
+  <script type="text/javascript" src="//s7.addthis.com/js/300/addthis_widget.js#pubid=ra-5ef40d594b8fb82a"></script>
+
+
+</body>
+
+</html>
