@@ -1,0 +1,17 @@
+pipeline{
+    environment {
+        imagename = "kaoutharzrelli/mern_front"
+        registryCredential = "dockerhub_credentials"
+        // dockerImage = ''
+        def scannerHome = tool 'sonarqube-scanner'
+    }
+    agent any
+    stages{
+
+        stage("deploy"){
+            steps{
+                echo 'deployment'
+            }
+        }
+    }
+}
